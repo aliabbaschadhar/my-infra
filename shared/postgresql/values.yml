@@ -1,0 +1,64 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "postgresYoShaka"
+      database: "novahost_db"
+      username: "novahost_user"
+      password: "novahost_pass_123"
+
+# Add image settings here (root-level)
+# image:
+#   registry: docker.io
+#   repository: bitnamilegacy/postgresql
+#   tag: sha256-9c8137a169ccb1f4946137736fbfffd091f6ce9c95c1f504bd7c996e9938a4be
+#   pullPolicy: IfNotPresent
+
+
+# Primary DB configs
+primary:
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: "do-block-storage"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # Enable TimescaleDB extension
+  initdb:
+    scripts:
+      init-timescaledb.sql: |
+        -- Enable TimescaleDB extension
+        CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
+        -- Create additional database for other apps 
+        CREATE DATABASE excalidraw_db;
+        # TODO: Add DBs of other apps also
+
+        -- Create user for different apps
+        CREATE USER excalidraw_user WITH PASSWORD 'excalidraw_pass_123';
+
+        -- Grant permissions
+        GRANT ALL PRIVILEGES ON DATABASE novahost_db TO novahost_user;
+        GRANT ALL PRIVILEGES ON DATABASE excalidraw_db TO excalidraw_user;
+
+        -- Enable TimescaleDB on both DBs
+        \c novahost_db;
+        CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
+        \c excalidraw_db;
+        CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
+metrics: 
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 5432

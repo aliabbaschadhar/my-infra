@@ -1,4 +1,4 @@
-## Project overview
+# Project overview
 
 - Main Project: Novahost — self-hosted cloud hosting platform (Next.js, TypeScript, Bun).
 - Goal: Host multiple hobby apps on shared, cost-effective infrastructure.
