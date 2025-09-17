@@ -1,0 +1,32 @@
+crds:
+  enabled: true
+
+# Resource limits for cert-manager controller
+resources:
+  requests: 
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m 
+    memory: 128Mi
+
+# Webhook
+webhook:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# CA injector component resource limits
+cainjector:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    
