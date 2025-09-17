@@ -1,0 +1,48 @@
+configs:
+  params:
+    controller.operation.processors: "5"
+    controller.status.processors: "10"
+
+controller:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Disable internal Redis and use standard Redis image instead
+redis:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: redis
+    tag: 7.2-alpine
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+
+repoServer:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+server:
+  insecure: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  service:
+    port: 80
+    type: ClusterIP
