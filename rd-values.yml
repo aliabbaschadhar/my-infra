@@ -1,0 +1,61 @@
+# Authentication
+auth:
+  enabled: true
+  password: "redis_password_123"
+
+# Architecture - standalone (single instance)
+architecture: standalone
+
+# Master configuration
+master:
+  # Resource limits for small cluster
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Persistence settings
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: "do-block-storage"
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    ports:
+      redis: 6379
+
+# Redis configuration
+commonConfiguration: |-
+  # Enable save to disk
+  save 900 1
+  save 300 10
+  save 60 10000
+  
+  # Memory management
+  maxmemory 256mb
+  maxmemory-policy allkeys-lru
+  
+  # Performance settings
+  tcp-keepalive 300
+  timeout 0
+  
+  # Enable Redis Streams (already enabled by default in Redis 5+)
+  # stream-node-max-bytes 4096
+  # stream-node-max-entries 100
+
+# Disable replica (we only need one Redis instance)
+replica:
+  replicaCount: 0
+
+# Disable metrics for now (small cluster)
+metrics:
+  enabled: false
+
+# Disable sentinel (not needed for single instance)
+sentinel:
+  enabled: false
