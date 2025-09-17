@@ -1,0 +1,51 @@
+server:
+  service:
+    type: ClusterIP
+    port: 80
+  
+  insecure: true # Just for now
+
+  # Don't use too much resources
+  resources:
+    requests:
+      cpu: 100m 
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Controller( the brain that watch git and applies changes)
+controller:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+# Repo Server (downloads and process Git Repos)
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Use Redis for better performance
+redis:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: redis           # use official redis image
+    tag: 7.2-alpine   
+
+
+# Application Settings
+configs:
+  params:
+    # Make ArgoCD work better with many apps
+    "controller.operation.processors": "5"
+    "controller.status.processors": "10"
