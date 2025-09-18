@@ -10,9 +10,10 @@ web:
     repository: aliabbaschadhar003/novahost-web
     pullPolicy: IfNotPresent
     tag: "latest"
-  # Service
-  type: ClusterIP
-  port: 3000
+
+  service:
+    type: ClusterIP
+    port: 3000
 
   resources:
     requests:
@@ -84,3 +85,60 @@ reverseProxy:
       cpu: 200m
       memory: 128Mi
 
+# Ingress Config
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: novahost.ybro.tech
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: novahost-api
+              port: 
+                number: 9000
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: novahost-web
+              port:
+                number: 3000
+  
+  tls: 
+    - secretName: novahost-tls
+      hosts: 
+        - novahost.ybro.tech
+
+# Environment variables from secrets
+secrets:
+  database: "novahost-db-secret"
+  redis: "novahost-redis-secret"
+  r2: "novahost-r2-secret"
+  oauth: "novahost-oauth-secret"
+  app: "novahost-app-secret"
+  build: "novahost-build-secret"
+
+autoscaling:
+  enabled: true
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+
+# Pod Security Context
+podSecurityContext: {}
+securityContext: {}
+
+# Node selection
+nodeSelector: {}
+tolerations: []
+affinity: {}
