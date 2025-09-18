@@ -1,0 +1,16 @@
+apiVersion: v2
+name: novahost
+description: Novahost- Cloud hosting platform
+type: application
+version: 1.0.0
+appVersion: "latest"
+
+maintainers:
+  - name: aliabbaschadhar
+    email: work.aliabbaschadhar@gmail.com
+
+keywords:
+  - novahost
+  - cloud
+  - hosting
+  - kubernetes
