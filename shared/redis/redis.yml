@@ -52,7 +52,7 @@ spec:
   storageClassName: do-block-storage
   resources:
     requests:
-      storage: 5Gi
+      storage: 3Gi
 
 ---
 apiVersion: apps/v1
