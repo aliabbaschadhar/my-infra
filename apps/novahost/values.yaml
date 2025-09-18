@@ -1,0 +1,86 @@
+global:
+  domain: "novahost.ybro.tech"
+
+# Web ( Next.js)
+web:
+  enabled: true
+  replicaCount: 1
+  # Image
+  image:
+    repository: aliabbaschadhar003/novahost-web
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  # Service
+  type: ClusterIP
+  port: 3000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# API-Server
+api:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: aliabbaschadhar003/novahost-api
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 9000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Build Server (Jobs)
+# TODO: Right now it is a just a pod not will convert it into a job
+buildServer:
+  enabled: true
+  
+  image:
+    repository: aliabbaschadhar003/novahost-build-server
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+# REVERSE PROXY
+reverseProxy:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: aliabbaschadhar003/novahost-reverse-proxy
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
