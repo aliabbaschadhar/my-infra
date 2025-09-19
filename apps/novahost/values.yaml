@@ -133,6 +133,12 @@ serviceAccount:
   annotations: {}
   name: ""
 
+# Image Pull Secrets (for private registries)
+imagePullSecrets: [] 
+# Example for private registries:
+# imagePullSecrets:
+#   - name: docker-registry-secret
+#   - name: ghcr-secret
 
 # Pod Security Context
 podSecurityContext: {}
