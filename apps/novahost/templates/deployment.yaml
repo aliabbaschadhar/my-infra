@@ -37,7 +37,7 @@ spec:
               containerPort: {{ .Values.web.service.port }}
               protocol: TCP
           env:
-            # DATABASE
+            # Database
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -123,8 +123,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
-# API Server Deployment
 {{- end }}
+
+# API Server Deployment
 {{- if .Values.api.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -186,6 +187,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.app }}
                   key: JWT_SECRET
+            - name: BASE_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.r2 }}
+                  key: BASE_PATH
           livenessProbe:
             httpGet:
               path: /health
@@ -213,8 +219,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
-# Build Server Deployment  
 {{- end }}
+
+# Build Server Deployment  
 {{- if .Values.buildServer.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -267,6 +274,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.app }}
                   key: NODE_ENV
+            - name: BASE_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.r2 }}
+                  key: BASE_PATH
           resources:
             {{- toYaml .Values.buildServer.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -282,8 +294,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
-# Reverse Proxy Deployment
 {{- end }}
+
+# Reverse Proxy Deployment
 {{- if .Values.reverseProxy.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -327,6 +340,24 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.app }}
                   key: NODE_ENV
+            # Database for project lookups
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.database }}
+                  key: DATABASE_URL
+            # Redis
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.redis }}
+                  key: REDIS_URL
+            # BASE_PATH from R2 secret
+            - name: BASE_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.r2 }}
+                  key: BASE_PATH
           resources:
             {{- toYaml .Values.reverseProxy.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
