@@ -1,15 +1,15 @@
 global:
   domain: "novahost.ybro.tech"
 
-# Web ( Next.js)
+# Web (Next.js)
 web:
   enabled: true
   replicaCount: 1
-  # Image
+  
   image:
     repository: aliabbaschadhar003/novahost-web
-    pullPolicy: IfNotPresent
     tag: "latest"
+    pullPolicy: IfNotPresent
 
   service:
     type: ClusterIP
@@ -23,15 +23,15 @@ web:
       cpu: 500m
       memory: 512Mi
 
-# API-Server
+# API Server
 api:
   enabled: true
   replicaCount: 1
 
   image:
     repository: aliabbaschadhar003/novahost-api
-    pullPolicy: IfNotPresent
     tag: "latest"
+    pullPolicy: IfNotPresent
   
   service:
     type: ClusterIP
@@ -45,15 +45,14 @@ api:
       cpu: 500m
       memory: 512Mi
 
-# Build Server (Jobs)
-# TODO: Right now it is a just a pod not will convert it into a job
+# Build Server
 buildServer:
   enabled: true
   
   image:
     repository: aliabbaschadhar003/novahost-build-server
-    pullPolicy: IfNotPresent
     tag: "latest"
+    pullPolicy: IfNotPresent
 
   resources:
     requests:
@@ -63,15 +62,15 @@ buildServer:
       cpu: 1000m
       memory: 1Gi
 
-# REVERSE PROXY
+# Reverse Proxy
 reverseProxy:
   enabled: true
   replicaCount: 1
-  
+
   image:
     repository: aliabbaschadhar003/novahost-reverse-proxy
-    pullPolicy: IfNotPresent
     tag: "latest"
+    pullPolicy: IfNotPresent
 
   service:
     type: ClusterIP
@@ -85,7 +84,7 @@ reverseProxy:
       cpu: 200m
       memory: 128Mi
 
-# Ingress Config
+# Ingress Configuration
 ingress:
   enabled: true
   className: "nginx"
@@ -93,27 +92,42 @@ ingress:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
+    # Main application routes
     - host: novahost.ybro.tech
       paths:
         - path: /api
           pathType: Prefix
           backend:
             service:
-              name: novahost-api
-              port: 
+              name: api
+              port:
                 number: 9000
         - path: /
           pathType: Prefix
           backend:
             service:
-              name: novahost-web
+              name: web
               port:
                 number: 3000
+    
+    # Wildcard subdomain for user projects (reverse-proxy)
+    - host: "*.novahost.ybro.tech"
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: reverse-proxy
+              port:
+                number: 8080
   
-  tls: 
+  tls:
     - secretName: novahost-tls
-      hosts: 
+      hosts:
         - novahost.ybro.tech
+    - secretName: novahost-wildcard-tls
+      hosts:
+        - "*.novahost.ybro.tech"
 
 # Environment variables from secrets
 secrets:
@@ -124,8 +138,12 @@ secrets:
   app: "novahost-app-secret"
   build: "novahost-build-secret"
 
+# Autoscaling
 autoscaling:
-  enabled: true
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
 
 # Service Account
 serviceAccount:
@@ -133,18 +151,27 @@ serviceAccount:
   annotations: {}
   name: ""
 
-# Image Pull Secrets (for private registries)
-imagePullSecrets: [] 
-# Example for private registries:
-# imagePullSecrets:
-#   - name: docker-registry-secret
-#   - name: ghcr-secret
+# Image Pull Secrets
+imagePullSecrets: []
 
 # Pod Security Context
 podSecurityContext: {}
+
+# Security Context
 securityContext: {}
 
 # Node selection
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# Probes
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
