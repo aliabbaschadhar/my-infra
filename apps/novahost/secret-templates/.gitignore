@@ -1,0 +1,10 @@
+# .gitignore for secret-templates
+
+# Ignore any files with actual secret values
+*-filled.yaml
+*-real.yaml
+*-prod.yaml
+*-production.yaml
+
+# But keep the template files
+!*-secret.yaml
