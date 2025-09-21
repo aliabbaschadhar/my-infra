@@ -10,10 +10,10 @@ spec:
   source:
     repoURL: https://github.com/aliabbaschadhar/my-infra.git
     targetRevision: main
-    path: platform/applications
+    path: platform/argocd/applications
   destination:
     server: https://kubernetes.default.svc
-    name: argocd
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
