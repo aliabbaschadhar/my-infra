@@ -8,7 +8,7 @@ web:
   
   image:
     repository: aliabbaschadhar003/novahost-web
-    tag: "cb375a4d0658761e41e7d4b0bcd293803a5a757e"
+    tag: "48dec5e2018f981d13308f49b2033942c2758d14"
     pullPolicy: Always
 
   service:
@@ -30,7 +30,7 @@ api:
 
   image:
     repository: aliabbaschadhar003/novahost-api-server
-    tag: "cb375a4d0658761e41e7d4b0bcd293803a5a757e"
+    tag: "48dec5e2018f981d13308f49b2033942c2758d14"
     pullPolicy: Always
   
   service:
@@ -51,7 +51,7 @@ buildServer:
   
   image:
     repository: aliabbaschadhar003/novahost-build-server
-    tag: "cb375a4d0658761e41e7d4b0bcd293803a5a757e"
+    tag: "48dec5e2018f981d13308f49b2033942c2758d14"
     pullPolicy: Always
 
   resources:
@@ -69,7 +69,7 @@ reverseProxy:
 
   image:
     repository: aliabbaschadhar003/novahost-reverse-proxy
-    tag: "cb375a4d0658761e41e7d4b0bcd293803a5a757e"
+    tag: "48dec5e2018f981d13308f49b2033942c2758d14"
     pullPolicy: Always
 
   service:
