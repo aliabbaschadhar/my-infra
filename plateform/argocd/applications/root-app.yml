@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-applications
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/aliabbaschadhar/my-infra.git
+    targetRevision: main
+    path: platform/applications
+  destination:
+    server: https://kubernetes.default.svc
+    name: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
