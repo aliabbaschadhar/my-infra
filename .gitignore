@@ -1,7 +1,7 @@
 .DS_Store
 *.log
 .env
-secret-templates
+apps/novahost/secret-templates
 *.tgz
 .vscode/
 .idea/
