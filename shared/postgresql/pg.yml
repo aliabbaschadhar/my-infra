@@ -43,11 +43,8 @@ metadata:
   namespace: shared
 type: Opaque
 data:
-  # postgresYoShaka (base64 encoded)
   postgres-password: cG9zdGdyZXNZb1NoYWth
-  # novahost_user (base64 encoded)
   postgres-user: bm92YWhvc3RfdXNlcg==
-  # novahost_pass_123 (base64 encoded)
   user-password: bm92YWhvc3RfcGFzc18xMjM=
 
 ---

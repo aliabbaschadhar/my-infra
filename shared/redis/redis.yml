@@ -37,7 +37,6 @@ metadata:
   namespace: shared
 type: Opaque
 data:
-  # redis_password_123 (base64 encoded)
   redis-password: cmVkaXNfcGFzc3dvcmRfMTIz
 
 ---
