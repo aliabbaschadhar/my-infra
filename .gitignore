@@ -1,3 +1,4 @@
+# Existing entries
 .DS_Store
 *.log
 .env
@@ -5,3 +6,69 @@ apps/novahost/secret-templates
 *.tgz
 .vscode/
 .idea/
+
+# Terraform Security - CRITICAL
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Terraform secrets and sensitive files
+terraform.tfplan
+terraform.tfplan.*
+.terraformrc
+terraform.rc
+
+# Environment files with secrets
+.env.*
+!.env.example
+*_secrets
+.secrets/
+
+# Kubernetes config files (may contain cluster credentials)
+kubeconfig*
+*.kubeconfig
+config
+
+# Vault files
+vault-keys.json
+vault-init.json
+*.vault
+
+# Cloud provider credentials
+.aws/
+.gcp/
+.azure/
+
+# Helm charts dependencies
+charts/*.tgz
+requirements.lock
+
+# Backup files
+*.backup
+*.bak
+*.orig
+
+# IDE and editor files
+*.swp
+*.swo
+*~
+.viminfo
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
