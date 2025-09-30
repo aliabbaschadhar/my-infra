@@ -6,7 +6,7 @@
 
 ## Key decisions (summary)
 
-- Single PostgreSQL instance (TimescaleDB) with multiple databases per app.
+- Single timescaleDb instance (TimescaleDB) with multiple databases per app.
 - Single Redis instance with logical DB separation per app.
 - Shared ingress & load balancer using path-based routing on `novahost.shakalabs.com`.
 - cert-manager + Let's Encrypt for TLS.
@@ -22,7 +22,7 @@
 ## Kubernetes layout
 
 - Namespaces:
-  - `shared`: postgresql, redis, ingress-nginx, cert-manager, monitoring
+  - `shared`: timescaleDb, redis, ingress-nginx, cert-manager, monitoring
   - `novahost`: application components
   - `excalidraw`: future app
   - `argocd`: GitOps
@@ -36,7 +36,7 @@ Use this repo as single source of truth for Helm/ArgoCD:
 my-infra/
 ├── platform/            # ArgoCD app-of-apps / platform-level manifests
 ├── shared/              # Helm charts for shared infra
-│   ├── postgresql/      # Bitnami PostgreSQL + TimescaleDB (values + patches)
+│   ├── timescaleDb/      # Bitnami timescaleDb + TimescaleDB (values + patches)
 │   ├── redis/           # Bitnami Redis
 │   ├── nginx-ingress/   # ingress-nginx chart
 │   └── cert-manager/    # cert-manager chart
@@ -57,7 +57,7 @@ my-infra/
 1. Provision Kubernetes cluster and DNS for novahost.shakalabs.com.
 2. Install argoCd using DO-market place - or bitnami chart.
 3. Deploy shared services first in `shared`:
-   - cert-manager(From DO-marketplace), ingress-nginx(from DO marketplace), PostgreSQL (with Timescale), Redis.
+   - cert-manager(From DO-marketplace), ingress-nginx(from DO marketplace), timescaleDb (with Timescale), Redis.
 4. Create per-app namespaces and required Kubernetes secrets (DATABASE_URL, REDIS_URL, TLS/other).
 5. Deploy apps via ArgoCD/Helm (start with novahost umbrella chart).
 6. Test routing and TLS, then run build-server jobs to validate image/artifact uploads to S3/DO Spaces.

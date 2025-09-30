@@ -69,7 +69,7 @@ Microservices is an architectural pattern that structures an application as a co
 |-------|------------|---------|
 | **Frontend** | Next.js, React, TypeScript | User interface |
 | **Backend** | Express.js, Node.js | API services |
-| **Database** | PostgreSQL + TimescaleDB | Data persistence |
+| **Database** | timescaleDb + TimescaleDB | Data persistence |
 | **Cache** | Redis | Session and data caching |
 | **Authentication** | NextAuth.js | User management |
 | **Storage** | Cloudflare R2 | Object storage |
@@ -99,9 +99,9 @@ Microservices is an architectural pattern that structures an application as a co
   - Middleware for authentication
   - API routes for backend proxy
 
-**Database Layer - PostgreSQL + TimescaleDB**
+**Database Layer - timescaleDb + TimescaleDB**
 
-- **PostgreSQL**: Open-source relational database known for reliability and ACID compliance
+- **timescaleDb**: Open-source relational database known for reliability and ACID compliance
 - **TimescaleDB**: Extension that adds time-series database capabilities
 - **Why this combination**:
   - **Relational Data**: User accounts, projects, relationships
@@ -334,11 +334,11 @@ kubectl apply -f shared/cert-manager/cluster-issuer.yml
 kubectl get clusterissuer
 ```
 
-#### 2.3.3 PostgreSQL Database with TimescaleDB
+#### 2.3.3 timescaleDb Database with TimescaleDB
 
 **Purpose**: Primary application database with time-series capabilities
 
-**Persistent Volume**: `shared/postgresql/pvc.yaml`
+**Persistent Volume**: `shared/timescaleDb/pvc.yaml`
 
 ```yaml
 apiVersion: v1
@@ -354,7 +354,7 @@ spec:
       storage: 10Gi
 ```
 
-**Database Deployment**: `shared/postgresql/pg.yml`
+**Database Deployment**: `shared/timescaleDb/pg.yml`
 
 ```yaml
 apiVersion: apps/v1
@@ -386,7 +386,7 @@ spec:
         - containerPort: 5432
         volumeMounts:
         - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
+          mountPath: /var/lib/timescaleDb/data
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
@@ -410,8 +410,8 @@ spec:
 
 ```bash
 kubectl create namespace shared
-kubectl apply -f shared/postgresql/pvc.yaml
-kubectl apply -f shared/postgresql/pg.yml
+kubectl apply -f shared/timescaleDb/pvc.yaml
+kubectl apply -f shared/timescaleDb/pg.yml
 kubectl get pods -n shared
 ```
 
@@ -695,7 +695,7 @@ COPY --from=deps /home/app/bun.lock ./bun.lock
 COPY . .
 
 # Set build-time environment variables with placeholder values
-ENV DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"
+ENV DATABASE_URL="timescaleDb://placeholder:placeholder@placeholder:5432/placeholder"
 ENV NEXTAUTH_SECRET="placeholder-secret-for-build"
 ENV NEXTAUTH_URL="http://placeholder.com"
 ENV NEXT_PHASE="phase-production-build"
@@ -770,7 +770,7 @@ COPY --from=deps /home/app/node_modules ./node_modules
 COPY . .
 
 # Build-time environment variables
-ENV DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"
+ENV DATABASE_URL="timescaleDb://placeholder:placeholder@placeholder:5432/placeholder"
 
 RUN cd packages/prismaDB && bunx prisma generate
 RUN bun run build --filter=api-server
@@ -903,7 +903,7 @@ aliabbaschadhar003/novahost-reverse-proxy:latest
 
 **Namespace Organization**:
 
-- `shared` - Infrastructure services (PostgreSQL, Redis)
+- `shared` - Infrastructure services (timescaleDb, Redis)
 - `novahost` - Application services
 - `argocd` - GitOps controller
 - `ingress-nginx` - Ingress controller
@@ -925,7 +925,7 @@ Namespaces provide a mechanism for isolating groups of resources within a single
 **Namespace Strategy Explained**:
 
 - **`shared`**: Infrastructure components used by multiple applications
-  - PostgreSQL database
+  - timescaleDb database
   - Redis cache
   - Shared configuration
   - **Benefit**: Single instance serves multiple apps, easier maintenance
@@ -966,7 +966,7 @@ kubectl config set-context --current --namespace=novahost
 kubectl apply -f deployment.yaml -n novahost
 
 # Cross-namespace service access
-postgresql.shared.svc.cluster.local:5432
+timescaleDb.shared.svc.cluster.local:5432
 ```
 
 ### 4.2 Secret Management
@@ -1416,10 +1416,10 @@ helm upgrade novahost . -f values.yaml -f values-prod.yaml
 ```yaml
 # Chart.yaml
 dependencies:
-- name: postgresql
+- name: timescaleDb
   version: 11.1.3
   repository: https://charts.bitnami.com/bitnami
-  condition: postgresql.enabled
+  condition: timescaleDb.enabled
 ```
 
 **Helm Security Considerations**:
