@@ -52,18 +52,18 @@ provider "cloudflare" {
 
 provider "kubernetes" {
   host  = module.doks_cluster.cluster_endpoint
-  token = var.do_token
+  token = module.doks_cluster.cluster_token
   cluster_ca_certificate = base64decode(
-    yamldecode(module.doks_cluster.kube_config).clusters[0].cluster.certificate-authority-data
+    yamldecode(module.doks_cluster.kube_config).clusters[0].cluster["certificate-authority-data"]
   )
 }
 
 provider "helm" {
   kubernetes = {
     host  = module.doks_cluster.cluster_endpoint
-    token = var.do_token
+    token = module.doks_cluster.cluster_token
     cluster_ca_certificate = base64decode(
-      yamldecode(module.doks_cluster.kube_config).clusters[0].cluster.certificate-authority-data
+      yamldecode(module.doks_cluster.kube_config).clusters[0].cluster["certificate-authority-data"]
     )
   }
 }
