@@ -18,3 +18,9 @@ output "cluster_endpoint" {
 output "vpc_uuid" {
   value = digitalocean_vpc.main.id
 }
+
+output "cluster_token" {
+  description = "Kubernetes cluster authentication token"
+  value       = digitalocean_kubernetes_cluster.primary.kube_config[0].token
+  sensitive   = true
+}
