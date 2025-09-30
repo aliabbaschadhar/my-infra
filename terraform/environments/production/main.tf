@@ -26,13 +26,6 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.0"
     }
-
-    # Why: Installs Vault, External Secrets Operator, and other Helm charts via Terraform What it does: helm_release resources (instead of manual helm install)
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 3"
-    }
-
     # DigitalOcean → Creates cluster
     # Kubernetes → Creates namespaces in that cluster
     # Helm → Installs Vault and External Secrets Operator
@@ -58,16 +51,6 @@ provider "kubernetes" {
   )
 }
 
-provider "helm" {
-  kubernetes = {
-    host  = module.doks_cluster.cluster_endpoint
-    token = module.doks_cluster.cluster_token
-    cluster_ca_certificate = base64decode(
-      yamldecode(module.doks_cluster.kube_config).clusters[0].cluster["certificate-authority-data"]
-    )
-  }
-}
-
 
 module "doks_cluster" {
   source       = "../../modules/doks-cluster"
@@ -90,7 +73,6 @@ resource "kubernetes_namespace" "novahost" {
   metadata {
     name = "novahost"
   }
-
   depends_on = [module.doks_cluster]
 }
 
@@ -98,7 +80,6 @@ resource "kubernetes_namespace" "excalidraw" {
   metadata {
     name = "excalidraw"
   }
-
   depends_on = [module.doks_cluster]
 }
 
@@ -113,6 +94,5 @@ resource "kubernetes_namespace" "vault" {
   metadata {
     name = "vault"
   }
-
   depends_on = [module.doks_cluster]
 }
