@@ -1,0 +1,148 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: timescaledb-init
+  namespace: shared
+data:
+  01-create-databases.sql: |
+    -- Create databases for applications
+    CREATE DATABASE novahost_db;
+    CREATE DATABASE excalidraw_db;
+
+    -- Create users with passwords from environment variables
+    CREATE USER novahost_user WITH PASSWORD '${NOVAHOST_DB_PASSWORD}';
+    CREATE USER excalidraw_user WITH PASSWORD '${EXCALIDRAW_DB_PASSWORD}';
+
+    -- Grant privileges
+    GRANT ALL PRIVILEGES ON DATABASE novahost_db TO novahost_user;
+    GRANT ALL PRIVILEGES ON DATABASE excalidraw_db TO excalidraw_user;
+
+  02-install-timescaledb.sql: |
+    -- Install TimescaleDB extension in all databases
+    \c novahost_db;
+    CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+    \c excalidraw_db;
+    CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+    \c postgres;
+    CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: timescaledb-data
+  namespace: shared
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: do-block-storage
+  resources:
+    requests:
+      storage: 6Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: timescaledb
+  namespace: shared
+  labels:
+    app: timescaledb
+spec:
+  serviceName: timescaledb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timescaledb
+  template:
+    metadata:
+      labels:
+        app: timescaledb
+    spec:
+      containers:
+        - name: timescaledb
+          image: timescale/timescaledb:latest-pg17
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            # PostgreSQL configuration
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: PATRONI_SUPERUSER_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+            # Application database passwords from Vault
+            - name: NOVAHOST_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: NOVAHOST_DB_PASSWORD
+            - name: EXCALIDRAW_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: EXCALIDRAW_DB_PASSWORD
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+              cpu: "1"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: timescaledb-data
+        - name: init-scripts
+          configMap:
+            name: timescaledb-init
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timescaledb
+  namespace: shared
+  labels:
+    app: timescaledb
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  selector:
+    app: timescaledb

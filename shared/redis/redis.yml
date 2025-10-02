@@ -8,36 +8,26 @@ data:
     # Redis configuration
     bind 0.0.0.0
     port 6379
-    
+
     # Memory settings
     maxmemory 256mb
     maxmemory-policy allkeys-lru
-    
+
     # Persistence settings
     save 900 1
     save 300 10
     save 60 10000
-    
+
     # Enable Redis Streams
     stream-node-max-bytes 4096
     stream-node-max-entries 100
-    
+
     # Security
     protected-mode no
-    
+
     # Performance
     tcp-keepalive 300
     timeout 0
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis-secret
-  namespace: shared
-type: Opaque
-data:
-  redis-password: cmVkaXNfcGFzc3dvcmRfMTIz
 
 ---
 apiVersion: v1
@@ -72,62 +62,62 @@ spec:
         app: redis
     spec:
       containers:
-      - name: redis
-        image: redis:7.2-alpine
-        ports:
-        - containerPort: 6379
-          name: redis
-        env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-secret
-              key: redis-password
-        command:
-        - redis-server
-        - /etc/redis/redis.conf
-        - --requirepass
-        - $(REDIS_PASSWORD)
-        volumeMounts:
-        - name: redis-data
-          mountPath: /data
-        - name: redis-config
-          mountPath: /etc/redis/redis.conf
-          subPath: redis.conf
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        livenessProbe:
-          exec:
-            command:
-            - redis-cli
-            - --no-auth-warning
-            - -a
+        - name: redis
+          image: redis:7.2-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+          command:
+            - redis-server
+            - /etc/redis/redis.conf
+            - --requirepass
             - $(REDIS_PASSWORD)
-            - ping
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          exec:
-            command:
-            - redis-cli
-            - --no-auth-warning
-            - -a
-            - $(REDIS_PASSWORD)
-            - ping
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+            - name: redis-config
+              mountPath: /etc/redis/redis.conf
+              subPath: redis.conf
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - --no-auth-warning
+                - -a
+                - $(REDIS_PASSWORD)
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - --no-auth-warning
+                - -a
+                - $(REDIS_PASSWORD)
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
       volumes:
-      - name: redis-data
-        persistentVolumeClaim:
-          claimName: redis-data
-      - name: redis-config
-        configMap:
-          name: redis-config
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-data
+        - name: redis-config
+          configMap:
+            name: redis-config
 
 ---
 apiVersion: v1
@@ -140,9 +130,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 6379
-    targetPort: 6379
-    protocol: TCP
-    name: redis
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: redis
   selector:
     app: redis
