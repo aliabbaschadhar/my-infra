@@ -29,6 +29,27 @@ data:
     tcp-keepalive 300
     timeout 0
 
+    # Multi-database support (0-15)
+    databases 6
+
+  # Redis initialization script for multi database setup
+  redis-init.sh: |
+    #!/bin/sh
+    echo "Setting up Redis databases for applications..."
+
+    # NovaHost uses database 1
+    redis-cli -a $REDIS_PASSWORD -n 1 CONFIG SET save "900 1 300 10 60 10000"
+    redis-cli -a $REDIS_PASSWORD -n 1 SET "app:name" "novahost"
+
+    # Excalidraw uses database 2  
+    redis-cli -a $REDIS_PASSWORD -n 2 CONFIG SET save "900 1 300 10 60 10000"
+    redis-cli -a $REDIS_PASSWORD -n 2 SET "app:name" "excalidraw"
+
+    # Default database 0 for system/shared usage
+    redis-cli -a $REDIS_PASSWORD -n 0 SET "app:name" "system"
+
+    echo "Redis databases configured successfully"
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -61,6 +82,21 @@ spec:
       labels:
         app: redis
     spec:
+      initContainers:
+        - name: redis-init
+          image: redis:7.2-alpine
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+          command:
+            - sh
+            - /scripts/redis-init.sh
+          volumeMounts:
+            - name: redis-config
+              mountPath: /scripts
       containers:
         - name: redis
           image: redis:7.2-alpine
