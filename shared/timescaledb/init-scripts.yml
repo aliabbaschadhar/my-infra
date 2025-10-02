@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: timescaledb-init-scripts
+  namespace: shared
+data:
+  # Will run only once when the db will be initialized
+  01-create-databases.sql: |
+    -- Create databases  for each application
+    CREATE DATABASE novahost_db;
+    CREATE DATABASE excalidraw_db;
+
+    -- Create users ( passwords will be set via environment variables)
+    CREATE USER novahost_user;
+    CREATE USER excalidraw_user;
+  02-setup-permissions.sql: |
+    -- Grant database ownership to respective users
+    ALTER DATABASE novahost_db OWNER TO novahost_user;
+    ALTER DATABASE excalidraw_db OWNER TO excalidraw_user;
+
+    -- Enable TimescaleDB extension on novahost_db
+    \c novahost_db
+    CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+    GRANT ALL PRIVILEGES ON DATABASE novahost_db TO novahost_user;
+
+    -- Enable TimescaleDB extension on excalidraw_db
+    -- \c connect to a specific database
+    \c excalidraw_db
+    CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+    GRANT ALL PRIVILEGES ON DATABASE excalidraw_db TO excalidraw_user;
