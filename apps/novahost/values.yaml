@@ -1,11 +1,11 @@
 global:
-  domain: "novahost.ybro.tech"
+  domain: "novahost.aliabbaschadhar.online"
 
 # Web (Next.js)
 web:
   enabled: true
   replicaCount: 1
-  
+
   image:
     repository: aliabbaschadhar003/novahost-web
     tag: "a4200bbd4e43c3d8c1c9313710901a8a01a46352"
@@ -32,7 +32,7 @@ api:
     repository: aliabbaschadhar003/novahost-api-server
     tag: "a4200bbd4e43c3d8c1c9313710901a8a01a46352"
     pullPolicy: Always
-  
+
   service:
     type: ClusterIP
     port: 9000
@@ -48,7 +48,7 @@ api:
 # Build Server
 buildServer:
   enabled: true
-  
+
   image:
     repository: aliabbaschadhar003/novahost-build-server
     tag: "a4200bbd4e43c3d8c1c9313710901a8a01a46352"
@@ -109,9 +109,9 @@ ingress:
               name: web
               port:
                 number: 3000
-    
+
     # Wildcard subdomain for user projects (reverse-proxy)
-    - host: "*.novahost.ybro.tech"
+    - host: "*.novahost.aliabbaschadhar.online"
       paths:
         - path: /
           pathType: Prefix
@@ -120,14 +120,14 @@ ingress:
               name: reverse-proxy
               port:
                 number: 8080
-  
+
   tls:
     - secretName: novahost-tls
       hosts:
-        - novahost.ybro.tech
+        - novahost.aliabbaschadhar.online
     - secretName: novahost-wildcard-tls
       hosts:
-        - "*.novahost.ybro.tech"
+        - "*.novahost.aliabbaschadhar.online"
 
 # Environment variables from secrets
 secrets:
